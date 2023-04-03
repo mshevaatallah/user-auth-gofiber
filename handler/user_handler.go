@@ -4,6 +4,7 @@ import (
 	"belajar-fiber/database"
 	"belajar-fiber/model/entity"
 	"belajar-fiber/model/request"
+	"belajar-fiber/model/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -69,10 +70,18 @@ func UserHandlerGetById(ctx *fiber.Ctx) error {
 			"message": "error",
 		})
 	}
-
+	response := response.UserResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		DeletedAt: user.DeletedAt,
+	}
 	return ctx.JSON(fiber.Map{
 		"message": "succes",
-		"data":    user,
+		"data":    response,
 	})
 
 }
