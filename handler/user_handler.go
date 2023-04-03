@@ -12,7 +12,7 @@ func UserHandlerGetAll(ctx *fiber.Ctx) error {
 	var users []entity.User
 	result := database.DB.Find(&users)
 	if result.Error != nil {
-		return ctx.JSON(fiber.Map{
+		return ctx.Status(404).JSON(fiber.Map{
 			"message": "error",
 		})
 	}
@@ -27,7 +27,7 @@ func UserHandlerCreate(ctx *fiber.Ctx) error {
 	user := new(request.UserRequest)
 	err := ctx.BodyParser(user)
 	if err != nil {
-		return ctx.JSON(fiber.Map{
+		return ctx.Status(404).JSON(fiber.Map{
 			"message": "email exist",
 		})
 	}
@@ -48,14 +48,31 @@ func UserHandlerCreate(ctx *fiber.Ctx) error {
 	}
 	errCreateUser := database.DB.Create(&newUser).Error
 	if errCreateUser != nil {
-		return ctx.JSON(fiber.Map{
-			"message": "error",
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "eerror create user",
 		})
 	}
 
 	return ctx.JSON(fiber.Map{
 		"message": "succes",
 		"data":    newUser,
+	})
+
+}
+
+func UserHandlerGetById(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	var user entity.User
+	err := database.DB.First(&user, "id = ?", id).Error
+	if err != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "error",
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "succes",
+		"data":    user,
 	})
 
 }
