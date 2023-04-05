@@ -122,3 +122,44 @@ func UserHandlerUpdate(ctx *fiber.Ctx) error {
 		"data":    user,
 	})
 }
+
+func UserHandlerUpdateEmail(ctx *fiber.Ctx) error {
+	userRequest := new(request.UserEmailRequest)
+	Error := ctx.BodyParser(userRequest)
+	if Error != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "error",
+		})
+	}
+
+	var user entity.User
+	id := ctx.Params("id")
+	err := database.DB.First(&user, "id = ?", id).Error
+	if err != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "error user not found ",
+		})
+	}
+
+	errEmail := database.DB.First(&user, "email = ?", userRequest.Email).Error
+	if errEmail == nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "error email exist",
+		})
+	}
+
+	// update data
+	user.Email = userRequest.Email
+
+	errUpdate := database.DB.Save(&user).Error
+	if errUpdate != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "error update coz email exist",
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "succes",
+		"data":    user,
+	})
+}
