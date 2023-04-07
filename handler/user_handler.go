@@ -5,6 +5,7 @@ import (
 	"belajar-fiber/model/entity"
 	"belajar-fiber/model/request"
 	"belajar-fiber/model/response"
+	"belajar-fiber/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -46,17 +47,30 @@ func UserHandlerCreate(ctx *fiber.Ctx) error {
 		Username: user.Username,
 		Email:    user.Email,
 		Phone:    user.Phone,
+		Password: user.Password,
 	}
+
+	userResponse := response.UserResponse{
+		Username: user.Username,
+		Email:    user.Email,
+		Phone:    user.Phone,
+	}
+	hashedPassword, error := utils.HasingPassword(user.Password)
+	if error != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "error",
+		})
+	}
+	newUser.Password = hashedPassword
 	errCreateUser := database.DB.Create(&newUser).Error
 	if errCreateUser != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"message": "eerror create user",
 		})
 	}
-
 	return ctx.JSON(fiber.Map{
 		"message": "succes",
-		"data":    newUser,
+		"data":    userResponse,
 	})
 
 }
