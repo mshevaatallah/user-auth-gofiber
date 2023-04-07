@@ -7,6 +7,8 @@ import (
 	"belajar-fiber/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 func LoginHandler(ctx *fiber.Ctx) error {
@@ -44,7 +46,22 @@ func LoginHandler(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// generate token
+	claims := jwt.MapClaims{}
+
+	claims["email"] = users.Email
+	claims["username"] = users.Username
+	claims["phone"] = users.Phone
+	claims["id"] = users.ID
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	token, errGenerate := utils.GenerateToken(&claims)
+	if errGenerate != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "error generate token",
+		})
+	}
 	return ctx.JSON(fiber.Map{
 		"message": "login success",
+		"token":   token,
 	})
 }
