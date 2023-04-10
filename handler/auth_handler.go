@@ -60,6 +60,7 @@ func LoginHandler(ctx *fiber.Ctx) error {
 			"message": "error generate token",
 		})
 	}
+
 	return ctx.JSON(fiber.Map{
 		"message": "login success",
 		"token":   token,
